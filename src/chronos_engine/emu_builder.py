@@ -127,15 +127,16 @@ class EmuBuilder:
         @brief Add [vvar] segment into memory between [stack] and [vdso]
         """
 
-        stack_end = 0
-        vdso_start = 0
+        stack_end = -1
+        vdso_start = -1
         for mapping in self._ql.mem.map_info:
             mapping_start, mapping_end, _, mapping_name = mapping[:4]
             if mapping_name == '[stack]':
                 stack_end = mapping_end
             elif mapping_name == '[vdso]' and vdso_start == 0:
                 vdso_start = mapping_start
-        self._ql.mem.map(stack_end, vdso_start - stack_end, info='[vvar]')
+        if stack_end != -1 and vdso_start != -1:
+            self._ql.mem.map(stack_end, vdso_start - stack_end, info='[vvar]')
 
     def _open_files(self, fds: List[FileDescriptor]) -> None:
         """!
